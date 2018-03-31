@@ -14,5 +14,9 @@ def index():
 def products():
     return render_template('products.html', Articles = articles)
 
+@app.route('/products/<string:id>/')
+def article(id):
+    return render_template('article.html', id = id)
+
 if __name__ == '__main__':
 	app.run(debug=True)

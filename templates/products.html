@@ -9,7 +9,19 @@
 		cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
 		proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
 
-		{% for article in Articles %}
-			{{article.name}}
-		{% endfor %}
+		<div class="container">
+			<div class="row">
+			{% for article in Articles %}
+				<div class="card col-md-4" style="width: 18rem;">
+				  <img src="{{article.image}}" style="height: 18rem">
+				  <div class="card-body">
+				    <h2>{{article.name}}</h2>
+	            	<h3>{{article.prix}}</h3>
+	            	<p>{{article.description}} </p>
+	            	<p><a class="btn btn-secondary" href="products/{{article.id}}" role="button">Buy</a></p>
+				  </div>
+				</div>
+			{% endfor %}
+			</div>	
+		</div>
 {% endblock %}
