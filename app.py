@@ -34,8 +34,6 @@ def article(id):
 
 class SignUpForm(Form):
 
-    name = StringField('Nom', [validators.Regexp('[a-zA-Z ]*$', message="Le nom doit uniquement contenir des lettres et espaces"),
-                               validators.Length(min=2, max=50, message="Le nom doit au moins contenir entre 2 et 50 caracteres")])
     email = StringField('Adresse courriel', [validators.Email(message="Cette adresse email est invalide"),
                                              validators.Length(max=100, message="Cette adresse email est trop longue")])
 
@@ -50,8 +48,6 @@ def test():
 
     if request.method == 'POST' and form.validate():
 
-        name = form.name.data
-
         email = form.email.data
 
         password = sha256_crypt.encrypt((str(form.password.data)))
@@ -64,8 +60,8 @@ def test():
             flash("Cette adresse courriel existe deja")
             return render_template('signup.html', form=form)
         else:
-            query = "INSERT INTO users (name, email, password) VALUES (%s, %s, %s)"
-            cursor.execute(query, (name, email, password))
+            query = "INSERT INTO users (email, password) VALUES ( %s, %s)"
+            cursor.execute(query, (email, password))
             connexion.commit()
 
             #FLASH FONCTIONNE PAS A REVOIR
