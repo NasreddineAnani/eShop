@@ -82,24 +82,3 @@ def test():
 
 if __name__ == '__main__':
     app.run(debug=True)
-
-    # try:
-    #     request = "select * from test;"
-    #
-    #     cursor.execute(request)
-    #     connexion.commit()
-    #
-    #     liste = cursor.fetchall()
-    # except Exception as e:
-    #     print(e)
-    #     #handle exeception here
-    #
-    # response = 'test'
-    # for tuple in liste:
-    #     response = tuple
-    #     for att in tuple:
-    #         print(att)
-    #     print('\n')
-    #
-    # cursor.close()
-    # connexion.close()
