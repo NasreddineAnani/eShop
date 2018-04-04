@@ -1,10 +1,10 @@
 import pymysql
 
 def getData():
-    connection = pymysql.connect(user="root", passwd="mysql", host="127.0.0.1", port=3306, database="Eshop")
+    connection = pymysql.connect(user="root", passwd="mysql", host="127.0.0.1", port=3306, database="eShop")
     cur = connection.cursor()
 
-    cur.execute("SELECT * FROM Eshop.products;")
+    cur.execute("SELECT * FROM eShop.products;")
 
     # print(cur.description)
     # print(cur.description)
