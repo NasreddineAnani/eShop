@@ -1,28 +1,28 @@
-def articles():
-	Articles = [
-		{
-			'id' : 1,
-			'name' : 'ps4',
-			'description' : 'console de jeu video',
-			'brand' : 'Sony',
-			'prix' : '34,33',
-			'image' : 'http://www.cnetfrance.fr/i/edit/2016/09/ps4-pro.jpg'
-		},
-		{
-			'id' : 2,
-			'name' : 'Xbox',
-			'description' : 'console de jeu video',
-			'brand' : 'Microsoft',
-			'prix' : '234,33',
-			'image' : 'https://static-ca.ebgames.ca/images/products/714211/3max.jpg'
-		},
-		{
-			'id' : 3,
-			'name' : 'Wii',
-			'description' : 'console de jeu video',
-			'brand' : 'Nintendo',
-			'prix' : '2134,33',
-			'image' : 'https://cdn.easycash.fr/img/prod/0/0/1/1/2/0/7/1/6/prod_400x290/1081610-nintendo-wii-blanc.jpg'
-		}
-	]
-	return Articles;
+import pymysql
+
+def getData():
+    connection = pymysql.connect(user="root", passwd="mysql", host="127.0.0.1", port=3306, database="Eshop")
+    cur = connection.cursor()
+
+    cur.execute("SELECT * FROM Eshop.products;")
+
+    # print(cur.description)
+    # print(cur.description)
+
+    data = cur.fetchall()
+    productsData = []
+
+    # print(data)
+    for row in data:
+        productsData.append({
+            'id': row[0],
+            'prix': row[1],
+            'description': row[2],
+            'name': row[3],
+            'type': row[4],
+            'image': row[5]
+        })
+
+    cur.close()
+    connection.close()
+    return productsData

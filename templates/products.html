@@ -13,10 +13,11 @@
 			<div class="row">
 			{% for article in Articles %}
 				<div class="card col-md-4" style="width: 18rem;">
+					<h1>{{article.id}}</h1>
 				  <img src="{{article.image}}" style="height: 18rem">
 				  <div class="card-body">
 				    <h2>{{article.name}}</h2>
-	            	<h3>{{article.prix}}</h3>
+	            	<h3>{{article.prix}} $</h3>
 	            	<p>{{article.description}} </p>
 	            	<p><a class="btn btn-secondary" href="products/{{article.id}}" role="button">Buy</a></p>
 				  </div>
