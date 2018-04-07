@@ -12,7 +12,10 @@ ENV/
 
 #external libraries
 
-passlib/
-wtforms/
-pymysql/
+/passlib
+/wtforms
+/pymysql
 
+#pycharm garbo
+
+.idea/
