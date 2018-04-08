@@ -13,8 +13,6 @@ articles = articles()
 
 connexion = pymysql.connect(host='localhost', user='root', password='mysql', db='eShop')
 
-cursor = connexion.cursor()
-
 
 # Index
 @app.route('/')
@@ -33,18 +31,27 @@ def article(id):
 
 
 class SignUpForm(Form):
-
     email = StringField('Adresse courriel', [validators.Email(message="Cette adresse email est invalide"),
                                              validators.Length(max=100, message="Cette adresse email est trop longue")])
 
-    #ADD REGEX FOR PASSWORD
-    password = PasswordField('Mot de passe', [validators.EqualTo('passwordConfirm', message='les mots de passes doivent correspondre')])
+    # ADD REGEX FOR PASSWORD
+    password = PasswordField('Mot de passe',
+                             [validators.EqualTo('passwordConfirm', message='les mots de passes doivent correspondre')])
 
     passwordConfirm = PasswordField('Confirmer le mot de passe')
 
+
+class LoginForm(Form):
+    email = StringField('Adresse courriel', [validators.data_required(message='Ce champ doit etre remplis')])
+    password = PasswordField('Mot de passe', [validators.data_required(message='Ce champ doit etre remplis')])
+
+
 @app.route('/signup', methods=['GET', 'POST'])
-def test():
+def signup():
+    #IF LOGGED IN, ?????
+
     form = SignUpForm(request.form)
+    cursor = connexion.cursor()
 
     if request.method == 'POST' and form.validate():
 
@@ -57,23 +64,65 @@ def test():
         response = cursor.execute(query, email)
 
         if int(response) > 0:
-            flash("Cette adresse courriel existe deja")
+            flash("Cette adresse courriel existe deja", category='warning')
+            cursor.close()
+
             return render_template('signup.html', form=form)
         else:
             query = "INSERT INTO users (email, password) VALUES ( %s, %s)"
             cursor.execute(query, (email, password))
             connexion.commit()
 
-            #FLASH FONCTIONNE PAS A REVOIR
-            flash("Votre nouveau compte est inscris")
+            flash("Votre nouveau compte est inscris", category='success')
+            cursor.close()
 
-        cursor.close()
-        connexion.close()
         session['session_on'] = True
         session['email'] = email
         return redirect('/')
 
     return render_template('signup.html', form=form)
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    form = LoginForm(request.form)
+
+    cursor = connexion.cursor()
+
+    if request.method == 'POST':
+
+        email = form.email.data
+
+        query = "SELECT * FROM users WHERE email = (%s)"
+        response = cursor.execute(query, email)
+
+        if int(response) == 0:
+            flash("L'utilisateur n'existe pas ou le mot de passe ne correspond pas", category='warning')
+            cursor.close()
+            return render_template('login.html', form=form)
+
+        else:
+            pwdQuery = "SELECT * FROM users WHERE email = (%s)"
+
+            cursor.execute(pwdQuery, email)
+
+            hashedpwd = cursor.fetchone()[2]
+
+            password = form.password.data
+
+            if sha256_crypt.verify(password, hashedpwd):
+                flash("Vous etes connecté", category='success')
+                session['session_on'] = True
+                session['email'] = email
+                cursor.close()
+                return redirect('/')
+
+            else:
+                flash("L'utilisateur n'existe pas ou le mot de passe ne correspond pas", category='warning')
+                cursor.close()
+                return render_template('login.html', form=form)
+
+    return render_template('login.html', form=form)
 
 
 if __name__ == '__main__':
