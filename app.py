@@ -49,7 +49,10 @@ class LoginForm(Form):
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
-    # IF LOGGED IN, ?????
+
+    if session['session_on']:
+        flash('Deconnectez vous pour inscrire un nouveau compte', category='info')
+        return redirect('/')
 
     form = SignUpForm(request.form)
     cursor = connexion.cursor()
