@@ -3,6 +3,7 @@ from data import articles
 from wtforms import Form, StringField, PasswordField, validators
 import pymysql
 from passlib.hash import sha256_crypt
+from functools import wraps
 
 app = Flask(__name__)
 
@@ -48,7 +49,7 @@ class LoginForm(Form):
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
-    #IF LOGGED IN, ?????
+    # IF LOGGED IN, ?????
 
     form = SignUpForm(request.form)
     cursor = connexion.cursor()
@@ -123,6 +124,26 @@ def login():
                 return render_template('login.html', form=form)
 
     return render_template('login.html', form=form)
+
+
+def checkLoginForAccess(f):
+    @wraps(f)
+    def wrap(*args, **kwargs):
+        if 'session_on' in session:
+            return f(*args, **kwargs)
+        else:
+            flash("Veuillez d'abord vous connecter", 'danger')
+            return redirect('/login')
+
+    return wrap
+
+
+@app.route("/logout")
+@checkLoginForAccess
+def logout():
+    session.clear()
+    flash('Vous avez été deconnecté', category='success')
+    return redirect('/')
 
 
 if __name__ == '__main__':
