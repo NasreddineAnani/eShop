@@ -14,10 +14,10 @@ articles = articles()
 
 connexion = pymysql.connect(host='localhost', user='root', password='mysql', db='eShop')
 
-
 # Index
 @app.route('/')
 def index():
+
     return render_template('home.html')
 
 
@@ -50,7 +50,7 @@ class LoginForm(Form):
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
 
-    if session['session_on']:
+    if 'session_on' in session and session['session_on']:
         flash('Deconnectez vous pour inscrire un nouveau compte', category='info')
         return redirect('/')
 
@@ -144,7 +144,8 @@ def checkLoginForAccess(f):
 @app.route("/logout")
 @checkLoginForAccess
 def logout():
-    session.clear()
+    session['session_on'] = False
+    session['email'] = ''
     flash('Vous avez été deconnecté', category='success')
     return redirect('/')
 
