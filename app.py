@@ -14,6 +14,18 @@ articles = articles()
 
 connexion = pymysql.connect(host='localhost', user='root', password='mysql', db='eShop')
 
+
+def checkLoginForAccess(f):
+    @wraps(f)
+    def wrap(*args, **kwargs):
+        if 'session_on' in session and session['session_on']:
+            return f(*args, **kwargs)
+        else:
+            flash("Veuillez d'abord vous connecter", 'danger')
+            return redirect('/login')
+
+    return wrap
+
 # Index
 @app.route('/')
 def index():
@@ -127,19 +139,6 @@ def login():
                 return render_template('login.html', form=form)
 
     return render_template('login.html', form=form)
-
-
-def checkLoginForAccess(f):
-    @wraps(f)
-    def wrap(*args, **kwargs):
-        if 'session_on' in session:
-            return f(*args, **kwargs)
-        else:
-            flash("Veuillez d'abord vous connecter", 'danger')
-            return redirect('/login')
-
-    return wrap
-
 
 @app.route("/logout")
 @checkLoginForAccess
