@@ -127,9 +127,11 @@ def login():
 
             cursor.execute(pwdQuery, email)
 
-            hashedpwd = cursor.fetchone()[2]
+            response = cursor.fetchone()
 
-            userId = cursor.fetchone()[0]
+            hashedpwd = response[2]
+
+            userId = response[0]
 
             password = form.password.data
 
