@@ -49,20 +49,34 @@ def getProductData(id):
     connection.close()
     return productsData
 
-def addToCart(idCart, idUser, idProduct):
+def addToCart(idUser, idProduct):
     connection = pymysql.connect(user="root", passwd="mysql", host="127.0.0.1", port=3306, database="eShop")
     cur = connection.cursor()
 
-    cur.execute("INSERT INTO cart (cartId, userId, prodId) VALUES ( {}, {}, {});".format(idCart, idUser, idProduct))
+    cur.execute("INSERT INTO cart (cartId, userId, prodId) VALUES ({}, {});".format(idUser, idProduct))
 
     cur.close()
     connection.close()
 
-def addToCart(idCart, idUser, idProduct):
+def getCartProduct(idUser):
     connection = pymysql.connect(user="root", passwd="mysql", host="127.0.0.1", port=3306, database="eShop")
     cur = connection.cursor()
+    cur.execute("SELECT * FROM products INNER JOIN cart ON products.id = cart.prodId WHERE cart.userId = {};".format(idUser))
+    data = cur.fetchall()
+    productsData = []
 
-    cur.execute("INSERT INTO cart (cartId, userId, prodId) VALUES (" + idCart + "," + idUser + "," + idProduct + ");")
+    # print(data)
+    for row in data:
+        productsData.append({
+            'id': row[0],
+            'prix': row[1],
+            'description': row[2],
+            'name': row[3],
+            'type': row[4],
+            'image': row[5]
+        })
 
     cur.close()
     connection.close()
+
+    return productsData

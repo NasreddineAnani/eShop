@@ -1,6 +1,6 @@
 
 from flask import Flask, render_template, flash, redirect, url_for, session, logging, request
-from data import getData, getProductData
+from data import getData, getProductData, getCartProduct
 from wtforms import Form, StringField, PasswordField, validators
 import pymysql
 from passlib.hash import sha256_crypt
@@ -161,10 +161,7 @@ def logout():
 @app.route("/cart")
 @checkLoginForAccess
 def cart():
-    idUser=''
-    if 'idUser' in session:
-        idUser = session['userId']
-    return render_template('cart.html', idUser=idUser)
+    return render_template('cart.html', cartProduct=getCartProduct(session['idUser']))
 
 if __name__ == '__main__':
     app.run(debug=True)
