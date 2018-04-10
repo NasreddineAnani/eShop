@@ -20,7 +20,7 @@
 <form method="post" action="">
 
     <div class="form-group">
-        <div> {{ form.email.label }}: {{ form.email(class="form-control") }}
+        <div> {{ form.email.label }}: {{ form.email(class="form-control") }}</div>
         {% if form.email.errors %}
             <ul class="errors">
             {% for error in form.email.errors %}
