@@ -89,9 +89,15 @@ def signup():
             cursor.execute(query, (email, password))
             connexion.commit()
 
+            query = "SELECT * FROM users WHERE email = (%s)"
+            cursor.execute(query, email)
+            userId = cursor.fetchone()[0]
+            connexion.commit()
+
             flash("Votre nouveau compte est inscris", category='success')
             cursor.close()
 
+        session['idUser'] = userId
         session['session_on'] = True
         session['email'] = email
         return redirect('/')
@@ -124,12 +130,15 @@ def login():
 
             hashedpwd = cursor.fetchone()[2]
 
+            userId = cursor.fetchone()[0]
+
             password = form.password.data
 
             if sha256_crypt.verify(password, hashedpwd):
                 flash("Vous etes connecté", category='success')
                 session['session_on'] = True
                 session['email'] = email
+                session['idUser'] = userId
                 cursor.close()
                 return redirect('/')
 
