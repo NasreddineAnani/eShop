@@ -15,7 +15,6 @@ articles = getData()
 
 connexion = pymysql.connect(host='localhost', user='root', password='mysql', db='eShop')
 
-
 def checkLoginForAccess(f):
     @wraps(f)
     def wrap(*args, **kwargs):
@@ -160,7 +159,10 @@ def logout():
 @app.route("/cart")
 @checkLoginForAccess
 def cart():
-    return render_template('cart.html', Articles=articles)
+    idUser=''
+    if 'idUser' in session:
+        idUser = session['userId']
+    return render_template('cart.html', idUser=idUser)
 
 if __name__ == '__main__':
     app.run(debug=True)

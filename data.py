@@ -53,7 +53,7 @@ def addToCart(idCart, idUser, idProduct):
     connection = pymysql.connect(user="root", passwd="mysql", host="127.0.0.1", port=3306, database="eShop")
     cur = connection.cursor()
 
-    cur.execute("INSERT INTO cart (cartId, userId, prodId) VALUES (" + idCart + "," + idUser + "," + idProduct + ");")
+    cur.execute("INSERT INTO cart (cartId, userId, prodId) VALUES ( {}, {}, {});".format(idCart, idUser, idProduct))
 
     cur.close()
     connection.close()
