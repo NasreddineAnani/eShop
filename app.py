@@ -10,8 +10,6 @@ app = Flask(__name__)
 app.secret_key = 'super secret key'
 app.config['SESSION_TYPE'] = 'filesystem'
 
-articles = getData()
-
 connexion = pymysql.connect(host='localhost', user='root', password='mysql', db='eShop')
 
 
@@ -49,62 +47,65 @@ def products():
 
 @app.route('/products/category/<string:category>/', methods=['GET', 'POST'])
 def category(category):
+    unordered_products = getData(category)
     form = PriceForm(request.form)
+    data = []
 
     if request.method == 'POST' and form.validate():
         min = form.minPrice.data
         max = form.maxPrice.data
         order = form.priceOrder.data
-        print(min)
-        print(max)
-        print(order)
 
         if min is None and max is None:
             if order == 'ASC':
-                query = "SELECT * FROM `products` WHERE `type` = (%s) ORDER BY `price` ASC;"
+                query = "SELECT * FROM `products` WHERE `type` LIKE (%s) ORDER BY `price` ASC;"
             else:
-                query = "SELECT * FROM `products` WHERE `type` = (%s) ORDER BY `price` DESC;"
+                query = "SELECT * FROM `products` WHERE `type` LIKE (%s) ORDER BY `price` DESC;"
             cursor = connexion.cursor()
             cursor.execute(query, category)
             connexion.commit()
             cursor.close()
+            data = cursor.fetchall()
 
         elif min is None:
             if order == 'ASC':
-                query = "SELECT * FROM products WHERE type = (%s) AND `price` < (%s) ORDER BY price ASC;"
+                query = "SELECT * FROM products WHERE type LIKE (%s) AND `price` < (%s) ORDER BY price ASC;"
             else:
-                query = "SELECT * FROM products WHERE type = (%s) AND `price` < (%s) ORDER BY price DESC;"
+                query = "SELECT * FROM products WHERE type LIKE (%s) AND `price` < (%s) ORDER BY price DESC;"
             cursor = connexion.cursor()
             cursor.execute(query, (category, max))
             connexion.commit()
             cursor.close()
+            data = cursor.fetchall()
 
         elif max is None:
             if order == 'ASC':
-                query = "SELECT * FROM products WHERE type = (%s) AND price > (%s) ORDER BY price ASC;"
+                query = "SELECT * FROM products WHERE type LIKE (%s) AND price > (%s) ORDER BY price ASC;"
             else:
-                query = "SELECT * FROM products WHERE type = (%s) AND price > (%s) ORDER BY price DESC;"
+                query = "SELECT * FROM products WHERE type LIKE (%s) AND price > (%s) ORDER BY price DESC;"
 
             cursor = connexion.cursor()
             cursor.execute(query, (category, min))
             connexion.commit()
             cursor.close()
+            data = cursor.fetchall()
 
         elif min >= max:
             flash('La valeur minimum doit etre inferieur au maximum', category='warning')
-            render_template('products.html', Articles=articles, form=form)
+            render_template('products.html', Articles=unordered_products, form=form)
 
         else:
             if order == 'ASC':
-                query = "SELECT * FROM products WHERE type = (%s) AND price BETWEEN (%s) AND (%s) ORDER BY price ASC;"
+                query = "SELECT * FROM products WHERE type LIKE (%s) AND price BETWEEN (%s) AND (%s) ORDER BY price ASC;"
             else:
-                query = "SELECT * FROM products WHERE type = (%s) AND price BETWEEN (%s) AND (%s) ORDER BY price DESC;"
+                query = "SELECT * FROM products WHERE type LIKE (%s) AND price BETWEEN (%s) AND (%s) ORDER BY price DESC;"
             cursor = connexion.cursor()
             cursor.execute(query, (category, min, max))
             connexion.commit()
             cursor.close()
+            data = cursor.fetchall()
 
-        data = cursor.fetchall()
+
         productsData = []
 
         for row in data:
@@ -118,7 +119,7 @@ def category(category):
             })
         products = productsData
         return render_template('products.html', Articles=products, form=form, category=category)
-    return render_template('products.html', Articles=articles, form=form, category=category)
+    return render_template('products.html', Articles=unordered_products, form=form, category=category)
 
 
 @app.route('/products/<string:id>/')
@@ -141,7 +142,7 @@ def signup():
 
         password = sha256_crypt.encrypt((str(form.password.data)))
 
-        query = "SELECT * FROM users WHERE email = (%s)"
+        query = "SELECT * FROM users WHERE email LIKE (%s)"
 
         response = cursor.execute(query, email)
         connexion.commit()
@@ -181,7 +182,7 @@ def login():
 
         email = form.email.data
 
-        query = "SELECT * FROM users WHERE email = (%s)"
+        query = "SELECT * FROM users WHERE email LIKE (%s)"
         response = cursor.execute(query, email)
 
         if int(response) == 0:

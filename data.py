@@ -1,13 +1,10 @@
 import pymysql
 
-def getData():
+def getData(type):
     connection = pymysql.connect(user="root", passwd="mysql", host="127.0.0.1", port=3306, database="eShop")
     cur = connection.cursor()
 
-    cur.execute("SELECT * FROM eShop.products;")
-
-    # print(cur.description)
-    # print(cur.description)
+    cur.execute("SELECT * FROM eShop.products WHERE type LIKE (%s);", type)
 
     data = cur.fetchall()
     productsData = []
