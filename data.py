@@ -15,7 +15,7 @@ def getData():
     # print(data)
     for row in data:
         productsData.append({
-            'id': row[0],
+            'idProduct': row[0],
             'prix': row[1],
             'description': row[2],
             'name': row[3],
@@ -32,13 +32,13 @@ def getProductData(id):
     connection = pymysql.connect(user="root", passwd="mysql", host="127.0.0.1", port=3306, database="eShop")
     cur = connection.cursor()
 
-    cur.execute("SELECT * FROM eShop.products WHERE id =" + id + ";")
+    cur.execute("SELECT * FROM eShop.products WHERE idProduct =" + id + ";")
 
     data = cur.fetchone()
 
     # print(data)
     productsData = {
-    'id': data[0],
+    'idProduct': data[0],
     'prix': data[1],
     'description': data[2],
     'name': data[3],
@@ -78,14 +78,14 @@ def deleteToCart(idUser, idProduct):
 def getCartProduct(idUser):
     connection = pymysql.connect(user="root", passwd="mysql", host="127.0.0.1", port=3306, database="eShop")
     cur = connection.cursor()
-    cur.execute("SELECT * FROM products INNER JOIN cart ON products.id = cart.prodId WHERE cart.userId = {};".format(idUser))
+    cur.execute("SELECT * FROM products INNER JOIN cart ON products.idProduct = cart.prodId WHERE cart.userId = {};".format(idUser))
     data = cur.fetchall()
     productsData = []
 
     # print(data)
     for row in data:
         productsData.append({
-            'id': row[0],
+            'idProduct': row[0],
             'prix': row[1],
             'description': row[2],
             'name': row[3],
