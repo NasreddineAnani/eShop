@@ -29,7 +29,7 @@ def getProductData(id):
     connection = pymysql.connect(user="root", passwd="mysql", host="127.0.0.1", port=3306, database="eShop")
     cur = connection.cursor()
 
-    cur.execute("SELECT * FROM eShop.products WHERE idProduct =" + id + ";")
+    cur.execute("SELECT * FROM eShop.products WHERE idProduct =(%s);", id)
 
     data = cur.fetchone()
 
@@ -75,7 +75,7 @@ def deleteToCart(idUser, idProduct):
 def getCartProduct(idUser):
     connection = pymysql.connect(user="root", passwd="mysql", host="127.0.0.1", port=3306, database="eShop")
     cur = connection.cursor()
-    cur.execute("SELECT * FROM products INNER JOIN cart ON products.idProduct = cart.prodId WHERE cart.userId = {};".format(idUser))
+    cur.execute("SELECT * FROM products INNER JOIN cart ON products.idProduct = cart.prodId WHERE cart.userId = (%s);",idUser)
     data = cur.fetchall()
     productsData = []
 

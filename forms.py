@@ -1,4 +1,5 @@
 from wtforms import Form, StringField, IntegerField, SelectField, PasswordField, validators, widgets
+import re
 
 
 class SignUpForm(Form):
@@ -7,7 +8,7 @@ class SignUpForm(Form):
 
     # ADD REGEX FOR PASSWORD
     password = PasswordField('Mot de passe',
-                             [validators.EqualTo('passwordConfirm', message='les mots de passes doivent correspondre')])
+                             [validators.EqualTo('passwordConfirm', message='les mots de passes doivent correspondre'), validators.regexp(r"^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$", message='Le mot de passe doit contenir au moins 8 caracteres, 1 chiffre et une lettre')])
 
     passwordConfirm = PasswordField('Confirmer le mot de passe')
 

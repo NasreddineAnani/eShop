@@ -8,7 +8,7 @@ from forms import SignUpForm, LoginForm, PriceForm
 
 app = Flask(__name__)
 
-app.secret_key = 'super secret key'
+app.secret_key = b'{\xcd\xb6>\xf2\x02\xcc\x97\xefR\xae\xfflV\x172\x8bA\xf4e\x93\xd5p\xca'
 app.config['SESSION_TYPE'] = 'filesystem'
 
 app.jinja_env.globals.update(addProductToCart=addToCart)
@@ -251,9 +251,6 @@ def cart():
             flash("Le produit n'est pas présent dans votre panier", category='warning')
             return redirect('/cart')
     return render_template('cart.html', cartProduct=getCartProduct(session['idUser']))
-
-
-##request.headers['your-header-name']
 
 
 if __name__ == '__main__':
