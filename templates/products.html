@@ -1,14 +1,49 @@
 {% extends 'layout.html' %}
 
 {% block body %}
-		<h1>Bienvenue</h1>
-		<p class="lead">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-		tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-		quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-		consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
-		cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
-		proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+{% with messages = get_flashed_messages(with_categories=true) %}
+	{% if messages %}
+		{% for category, message in messages %}
+            <div class="alert alert-{{category}} alert-dismissible fade show" role="alert">
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+                {{ message }}
+            </div>
+		{% endfor %}
+	{% endif %}
+{% endwith %}
+		<h1>Recherche de produits par categorie: {{category}}</h1>
 
+		<div>
+			<form method="post" action="">
+				<h4>Trier votre recherche par prix</h4>
+				<div class="row form-group">
+					<div class="col">
+						{{ form.minPrice.label }}: {{ form.minPrice(class="form-control") }}
+						{% if form.minPrice.errors %}
+								<ul class="errors">
+								{% for error in form.minPrice.errors %}
+									<li> {{ error }} </li>
+								{% endfor %}
+								</ul>
+						{% endif %}
+						{{ form.maxPrice.label }}: {{ form.maxPrice(class="form-control") }}
+						{% if form.maxPrice.errors %}
+								<ul class="errors">
+								{% for error in form.maxPrice.errors %}
+									<li> {{ error }} </li>
+								{% endfor %}
+								</ul>
+						{% endif %}
+					</div>
+					<div class="col">
+						{{ form.priceOrder.label }}: {{ form.priceOrder(class="form-control") }}
+					</div>
+				</div>
+				<input type="submit" class="btn" value="Soumettre">
+			</form>
+		</div>
 		<div class="container">
 			<div class="row">
 			{% for article in Articles %}

@@ -1,0 +1,16 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+
+<div class="container">
+    <h2>Choisissez une categorie de produits</h2>
+    <div class="row">
+    {% for category in categories %}
+        <ul>
+            <li><a href="products/category/{{category}}"> {{category}}</a></li>
+        </ul>
+    {% endfor %}
+    </div>
+</div>
+
+{% endblock %}

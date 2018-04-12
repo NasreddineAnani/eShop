@@ -1,10 +1,9 @@
-
 from flask import Flask, render_template, flash, redirect, url_for, session, logging, request
 from data import getData, getProductData, getCartProduct
-from wtforms import Form, StringField, PasswordField, validators
 import pymysql
 from passlib.hash import sha256_crypt
 from functools import wraps
+from forms import SignUpForm, LoginForm, PriceForm
 
 app = Flask(__name__)
 
@@ -14,6 +13,7 @@ app.config['SESSION_TYPE'] = 'filesystem'
 articles = getData()
 
 connexion = pymysql.connect(host='localhost', user='root', password='mysql', db='eShop')
+
 
 def checkLoginForAccess(f):
     @wraps(f)
@@ -26,41 +26,109 @@ def checkLoginForAccess(f):
 
     return wrap
 
+
 # Index
 @app.route('/')
 def index():
-
     return render_template('home.html')
 
 
-@app.route('/products')
+@app.route('/products', methods=['GET', 'POST'])
 def products():
-    return render_template('products.html', Articles=articles)
+    query = 'SELECT DISTINCT type FROM products;'
+    cursor = connexion.cursor()
+    cursor.execute(query)
+    connexion.commit()
+    cursor.close()
+    data = cursor.fetchall()
+    categories = []
+    for row in data:
+        categories.append(row[0])
+    return render_template('categories.html', categories=categories)
+
+
+@app.route('/products/category/<string:category>/', methods=['GET', 'POST'])
+def category(category):
+    form = PriceForm(request.form)
+
+    if request.method == 'POST' and form.validate():
+        min = form.minPrice.data
+        max = form.maxPrice.data
+        order = form.priceOrder.data
+        print(min)
+        print(max)
+        print(order)
+
+        if min is None and max is None:
+            if order == 'ASC':
+                query = "SELECT * FROM `products` WHERE `type` = (%s) ORDER BY `price` ASC;"
+            else:
+                query = "SELECT * FROM `products` WHERE `type` = (%s) ORDER BY `price` DESC;"
+            cursor = connexion.cursor()
+            cursor.execute(query, category)
+            connexion.commit()
+            cursor.close()
+
+        elif min is None:
+            if order == 'ASC':
+                query = "SELECT * FROM products WHERE type = (%s) AND `price` < (%s) ORDER BY price ASC;"
+            else:
+                query = "SELECT * FROM products WHERE type = (%s) AND `price` < (%s) ORDER BY price DESC;"
+            cursor = connexion.cursor()
+            cursor.execute(query, (category, max))
+            connexion.commit()
+            cursor.close()
+
+        elif max is None:
+            if order == 'ASC':
+                query = "SELECT * FROM products WHERE type = (%s) AND price > (%s) ORDER BY price ASC;"
+            else:
+                query = "SELECT * FROM products WHERE type = (%s) AND price > (%s) ORDER BY price DESC;"
+
+            cursor = connexion.cursor()
+            cursor.execute(query, (category, min))
+            connexion.commit()
+            cursor.close()
+
+        elif min >= max:
+            flash('La valeur minimum doit etre inferieur au maximum', category='warning')
+            render_template('products.html', Articles=articles, form=form)
+
+        else:
+            if order == 'ASC':
+                query = "SELECT * FROM products WHERE type = (%s) AND price BETWEEN (%s) AND (%s) ORDER BY price ASC;"
+            else:
+                query = "SELECT * FROM products WHERE type = (%s) AND price BETWEEN (%s) AND (%s) ORDER BY price DESC;"
+            cursor = connexion.cursor()
+            cursor.execute(query, (category, min, max))
+            connexion.commit()
+            cursor.close()
+
+        data = cursor.fetchall()
+        productsData = []
+
+        # print(data)
+        for row in data:
+            productsData.append({
+                'id': row[0],
+                'prix': row[1],
+                'description': row[2],
+                'name': row[3],
+                'category': row[4],
+                'image': row[5]
+            })
+        products = productsData
+        return render_template('products.html', Articles=products, form=form, category=category)
+    return render_template('products.html', Articles=articles, form=form, category=category)
 
 
 @app.route('/products/<string:id>/')
 def article(id):
     return render_template('article.html', product=getProductData(id))
 
-class SignUpForm(Form):
-    email = StringField('Adresse courriel', [validators.Email(message="Cette adresse email est invalide"),
-                                             validators.Length(max=100, message="Cette adresse email est trop longue")])
-
-    # ADD REGEX FOR PASSWORD
-    password = PasswordField('Mot de passe',
-                             [validators.EqualTo('passwordConfirm', message='les mots de passes doivent correspondre')])
-
-    passwordConfirm = PasswordField('Confirmer le mot de passe')
-
-
-class LoginForm(Form):
-    email = StringField('Adresse courriel', [validators.data_required(message='Ce champ doit etre remplis')])
-    password = PasswordField('Mot de passe', [validators.data_required(message='Ce champ doit etre remplis')])
-
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
-
     if 'session_on' in session and session['session_on']:
         flash('Deconnectez vous pour inscrire un nouveau compte', category='info')
         return redirect('/')
@@ -77,6 +145,8 @@ def signup():
         query = "SELECT * FROM users WHERE email = (%s)"
 
         response = cursor.execute(query, email)
+        userId = cursor.fetchone()[0]
+        connexion.commit()
 
         if int(response) > 0:
             flash("Cette adresse courriel existe deja", category='warning')
@@ -86,11 +156,6 @@ def signup():
         else:
             query = "INSERT INTO users (email, password) VALUES ( %s, %s)"
             cursor.execute(query, (email, password))
-            connexion.commit()
-
-            query = "SELECT * FROM users WHERE email = (%s)"
-            cursor.execute(query, email)
-            userId = cursor.fetchone()[0]
             connexion.commit()
 
             flash("Votre nouveau compte est inscris", category='success')
@@ -150,6 +215,7 @@ def login():
 
     return render_template('login.html', form=form)
 
+
 @app.route("/logout")
 @checkLoginForAccess
 def logout():
@@ -158,10 +224,12 @@ def logout():
     flash('Vous avez été deconnecté', category='success')
     return redirect('/')
 
+
 @app.route("/cart")
 @checkLoginForAccess
 def cart():
     return render_template('cart.html', cartProduct=getCartProduct(session['idUser']))
+
 
 if __name__ == '__main__':
     app.run(debug=True)
