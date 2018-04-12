@@ -1,12 +1,23 @@
 {% extends 'layout.html' %}
 
 {% block body %}
+	{% with messages = get_flashed_messages(with_categories=true) %}
+		{% if messages %}
+			{% for category, message in messages %}
+				<div class="alert alert-{{category}} alert-dismissible fade show" role="alert" id="alert">
+				  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				  </button>
+					{{ message }}
+				</div>
+			{% endfor %}
+		{% endif %}
+	{% endwith %}
 		<div class="row">
 			<h1>{{product.name}}</h1>
 				<div class="col-md-8">
 				  <img class="img-fluid productImage" src="{{product.image}}" alt="">
 				</div>
-			<button class="btn btn-primary" onclick="">add to cart</button>
 				<div class="col-md-4">
 				  <h3 class="my-3">Project Description</h3>
 				  <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam viverra euismod odio, gravida pellentesque urna varius vitae. Sed dui lorem, adipiscing in adipiscing et, interdum nec metus. Mauris ultricies, justo eu convallis placerat, felis enim.</p>
@@ -14,6 +25,11 @@
 				  <ul>
 					<li>{{product.description}}</li>
 					<li>{{product.prix}} $</li>
+					  {% if session.session_on %}
+						<form method="post" action="">
+							<button type="submit" class="btn btn-primary my-2 my-sm-0 navbarButton"> add product to cart </button>
+						</form>
+					  {% endif %}
 				  </ul>
 				</div>
       		</div>

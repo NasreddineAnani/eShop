@@ -20,7 +20,7 @@ def getData():
             'description': row[2],
             'name': row[3],
             'type': row[4],
-            'image': row[5]
+            'image': row[5],
         })
 
     cur.close()
@@ -52,9 +52,28 @@ def getProductData(id):
 def addToCart(idUser, idProduct):
     connection = pymysql.connect(user="root", passwd="mysql", host="127.0.0.1", port=3306, database="eShop")
     cur = connection.cursor()
+    cur.execute("SELECT * FROM eShop.cart WHERE userId = %s AND prodId = %s", [str(idUser), str(idProduct)])
+    if cur.rowcount == 0:
+        cur.execute("INSERT INTO eShop.cart (userId, prodId) VALUES ( %s, %s);", [str(idUser), str(idProduct)])
+        connection.commit()
+        return True
+    else:
+        return False
+    cur.close()
+    connection.close()
 
-    cur.execute("INSERT INTO cart (cartId, userId, prodId) VALUES ({}, {});".format(idUser, idProduct))
-
+def deleteToCart(idUser, idProduct):
+    connection = pymysql.connect(user="root", passwd="mysql", host="127.0.0.1", port=3306, database="eShop")
+    cur = connection.cursor()
+    cur.execute("SELECT * FROM eShop.cart WHERE userId = %s AND prodId = %s", [str(idUser), str(idProduct)])
+    print("aight")
+    if cur.rowcount > 0:
+        cur.execute("DELETE FROM eShop.cart WHERE userId = %s AND prodId = %s", [str(idUser), str(idProduct)])
+        connection.commit()
+        print("skrr")
+        return True
+    else:
+        return False
     cur.close()
     connection.close()
 
@@ -73,7 +92,8 @@ def getCartProduct(idUser):
             'description': row[2],
             'name': row[3],
             'type': row[4],
-            'image': row[5]
+            'image': row[5],
+            'idUser': idUser
         })
 
     cur.close()

@@ -1,6 +1,6 @@
 
 from flask import Flask, render_template, flash, redirect, url_for, session, logging, request
-from data import getData, getProductData, getCartProduct
+from data import getData, getProductData, getCartProduct, addToCart, deleteToCart
 from wtforms import Form, StringField, PasswordField, validators
 import pymysql
 from passlib.hash import sha256_crypt
@@ -10,6 +10,17 @@ app = Flask(__name__)
 
 app.secret_key = 'super secret key'
 app.config['SESSION_TYPE'] = 'filesystem'
+
+
+app.jinja_env.globals.update(addProductToCart=addToCart)
+
+
+def test() :
+    return "wesh poto"
+
+
+app.jinja_env.globals.update(test=test)
+
 
 articles = getData()
 
@@ -38,9 +49,19 @@ def products():
     return render_template('products.html', Articles=articles)
 
 
-@app.route('/products/<string:id>/')
+@app.route('/products/<string:id>/', methods=['GET','POST'])
+@checkLoginForAccess
 def article(id):
-    return render_template('article.html', product=getProductData(id))
+    if request.method == 'POST':
+        boolAddedToCart = addToCart(session['idUser'], id)
+        if (boolAddedToCart):
+            flash('Produit ajouter à votre panier', category='info')
+            return redirect('/products/' + str(id) + '/')
+        else:
+            flash('Le produit est déjà présent dans votre panier', category='warning')
+            return redirect('/products/' + str(id) + '/')
+
+    return render_template('article.html', product=getProductData(id), userId=session['idUser'], )
 
 class SignUpForm(Form):
     email = StringField('Adresse courriel', [validators.Email(message="Cette adresse email est invalide"),
@@ -158,10 +179,25 @@ def logout():
     flash('Vous avez été deconnecté', category='success')
     return redirect('/')
 
-@app.route("/cart")
+@app.route("/cart", methods=['GET', 'POST'])
 @checkLoginForAccess
 def cart():
+    print("tkt")
+    userId = request.form.get('id')
+    if request.method == 'POST':
+        print("weshmag")
+        boolIsInCart = deleteToCart(session['idUser'], int(request.form['id']))
+        if (boolIsInCart):
+            flash('Produit retirer à votre panier', category='info')
+            return redirect('/cart')
+        else:
+            flash("Le produit n'est pas présent dans votre panier", category='warning')
+            return redirect('/cart')
     return render_template('cart.html', cartProduct=getCartProduct(session['idUser']))
+
+##request.headers['your-header-name']
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)
