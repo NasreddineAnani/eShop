@@ -182,10 +182,8 @@ def logout():
 @app.route("/cart", methods=['GET', 'POST'])
 @checkLoginForAccess
 def cart():
-    print("tkt")
     userId = request.form.get('id')
     if request.method == 'POST':
-        print("weshmag")
         boolIsInCart = deleteToCart(session['idUser'], int(request.form['id']))
         if (boolIsInCart):
             flash('Produit retirer à votre panier', category='info')

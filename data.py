@@ -66,11 +66,9 @@ def deleteToCart(idUser, idProduct):
     connection = pymysql.connect(user="root", passwd="mysql", host="127.0.0.1", port=3306, database="eShop")
     cur = connection.cursor()
     cur.execute("SELECT * FROM eShop.cart WHERE userId = %s AND prodId = %s", [str(idUser), str(idProduct)])
-    print("aight")
     if cur.rowcount > 0:
         cur.execute("DELETE FROM eShop.cart WHERE userId = %s AND prodId = %s", [str(idUser), str(idProduct)])
         connection.commit()
-        print("skrr")
         return True
     else:
         return False
