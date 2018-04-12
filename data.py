@@ -12,12 +12,12 @@ def getData(type):
     # print(data)
     for row in data:
         productsData.append({
-            'id': row[0],
+            'idProduct': row[0],
             'prix': row[1],
             'description': row[2],
             'name': row[3],
             'type': row[4],
-            'image': row[5]
+            'image': row[5],
         })
 
     cur.close()
@@ -29,13 +29,13 @@ def getProductData(id):
     connection = pymysql.connect(user="root", passwd="mysql", host="127.0.0.1", port=3306, database="eShop")
     cur = connection.cursor()
 
-    cur.execute("SELECT * FROM eShop.products WHERE id =" + id + ";")
+    cur.execute("SELECT * FROM eShop.products WHERE idProduct =" + id + ";")
 
     data = cur.fetchone()
 
     # print(data)
     productsData = {
-    'id': data[0],
+    'idProduct': data[0],
     'prix': data[1],
     'description': data[2],
     'name': data[3],
@@ -49,28 +49,46 @@ def getProductData(id):
 def addToCart(idUser, idProduct):
     connection = pymysql.connect(user="root", passwd="mysql", host="127.0.0.1", port=3306, database="eShop")
     cur = connection.cursor()
+    cur.execute("SELECT * FROM eShop.cart WHERE userId = %s AND prodId = %s", [str(idUser), str(idProduct)])
+    if cur.rowcount == 0:
+        cur.execute("INSERT INTO eShop.cart (userId, prodId) VALUES ( %s, %s);", [str(idUser), str(idProduct)])
+        connection.commit()
+        return True
+    else:
+        return False
+    cur.close()
+    connection.close()
 
-    cur.execute("INSERT INTO cart (cartId, userId, prodId) VALUES ({}, {});".format(idUser, idProduct))
-
+def deleteToCart(idUser, idProduct):
+    connection = pymysql.connect(user="root", passwd="mysql", host="127.0.0.1", port=3306, database="eShop")
+    cur = connection.cursor()
+    cur.execute("SELECT * FROM eShop.cart WHERE userId = %s AND prodId = %s", [str(idUser), str(idProduct)])
+    if cur.rowcount > 0:
+        cur.execute("DELETE FROM eShop.cart WHERE userId = %s AND prodId = %s", [str(idUser), str(idProduct)])
+        connection.commit()
+        return True
+    else:
+        return False
     cur.close()
     connection.close()
 
 def getCartProduct(idUser):
     connection = pymysql.connect(user="root", passwd="mysql", host="127.0.0.1", port=3306, database="eShop")
     cur = connection.cursor()
-    cur.execute("SELECT * FROM products INNER JOIN cart ON products.id = cart.prodId WHERE cart.userId = {};".format(idUser))
+    cur.execute("SELECT * FROM products INNER JOIN cart ON products.idProduct = cart.prodId WHERE cart.userId = {};".format(idUser))
     data = cur.fetchall()
     productsData = []
 
     # print(data)
     for row in data:
         productsData.append({
-            'id': row[0],
+            'idProduct': row[0],
             'prix': row[1],
             'description': row[2],
             'name': row[3],
             'type': row[4],
-            'image': row[5]
+            'image': row[5],
+            'idUser': idUser
         })
 
     cur.close()

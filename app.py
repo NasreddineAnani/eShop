@@ -1,5 +1,6 @@
 from flask import Flask, render_template, flash, redirect, url_for, session, logging, request
-from data import getData, getProductData, getCartProduct
+from data import getData, getProductData, getCartProduct, addToCart, deleteToCart
+from wtforms import Form, StringField, PasswordField, validators
 import pymysql
 from passlib.hash import sha256_crypt
 from functools import wraps
@@ -9,6 +10,8 @@ app = Flask(__name__)
 
 app.secret_key = 'super secret key'
 app.config['SESSION_TYPE'] = 'filesystem'
+
+app.jinja_env.globals.update(addProductToCart=addToCart)
 
 connexion = pymysql.connect(host='localhost', user='root', password='mysql', db='eShop')
 
@@ -33,6 +36,7 @@ def index():
 
 @app.route('/products', methods=['GET', 'POST'])
 def products():
+
     query = 'SELECT DISTINCT type FROM products;'
     cursor = connexion.cursor()
     cursor.execute(query)
@@ -105,12 +109,11 @@ def category(category):
             cursor.close()
             data = cursor.fetchall()
 
-
         productsData = []
 
         for row in data:
             productsData.append({
-                'id': row[0],
+                'idProduct': row[0],
                 'prix': row[1],
                 'description': row[2],
                 'name': row[3],
@@ -118,13 +121,24 @@ def category(category):
                 'image': row[5]
             })
         products = productsData
-        return render_template('products.html', Articles=products, form=form, category=category)
+
+        return render_template('products.html', products=products, form=form, category=category)
     return render_template('products.html', Articles=unordered_products, form=form, category=category)
 
 
-@app.route('/products/<string:id>/')
-def article(id):
-    return render_template('article.html', product=getProductData(id))
+@app.route('/products/category/<string:category>/<string:id>/', methods=['GET', 'POST'])
+@checkLoginForAccess
+def product(id, category):
+    if request.method == 'POST':
+        boolAddedToCart = addToCart(session['idUser'], id)
+        if (boolAddedToCart):
+            flash('Produit ajouter à votre panier', category='info')
+            return redirect('/products/category/' + str(category) + '/' + str(id) + '/')
+        else:
+            flash('Le produit est déjà présent dans votre panier', category='warning')
+            return redirect('/products/category/' + str(category) + '/' + str(id) + '/')
+
+    return render_template('product.html', product=getProductData(id), userId=session['idUser'])
 
 
 @app.route('/signup', methods=['GET', 'POST'])
@@ -225,10 +239,21 @@ def logout():
     return redirect('/')
 
 
-@app.route("/cart")
+@app.route("/cart", methods=['GET', 'POST'])
 @checkLoginForAccess
 def cart():
+    if request.method == 'POST':
+        boolIsInCart = deleteToCart(session['idUser'], int(request.form['idProduct']))
+        if (boolIsInCart):
+            flash('Produit retirer à votre panier', category='info')
+            return redirect('/cart')
+        else:
+            flash("Le produit n'est pas présent dans votre panier", category='warning')
+            return redirect('/cart')
     return render_template('cart.html', cartProduct=getCartProduct(session['idUser']))
+
+
+##request.headers['your-header-name']
 
 
 if __name__ == '__main__':

@@ -1,6 +1,20 @@
 {% extends 'layout.html' %}
 
 {% block body %}
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+	{% if messages %}
+		{% for category, message in messages %}
+            <div class="alert alert-{{category}} alert-dismissible fade show" role="alert" id="alert">
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+                {{ message }}
+            </div>
+		{% endfor %}
+	{% endif %}
+{% endwith %}
+
 <h1>Bienvenue</h1>
 		<p class="lead">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
 		tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
@@ -18,7 +32,9 @@
 				    <h2>{{product.name}}</h2>
 	            	<h3>{{product.prix}} $</h3>
 	            	<p>{{product.description}} </p>
-	            	<p><a class="btn btn-secondary" href="products/{{product.id}}" role="button">Buy</a></p>
+					  <form method="post" action="">
+							<button type="submit" name="idProduct" value="{{product.idProduct}}" class="btn btn-primary my-2 my-sm-0 navbarButton">Remove from cart </button>
+					  </form>
 				  </div>
 				</div>
 			{% endfor %}
