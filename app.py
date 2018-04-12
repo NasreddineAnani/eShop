@@ -15,14 +15,7 @@ app.config['SESSION_TYPE'] = 'filesystem'
 app.jinja_env.globals.update(addProductToCart=addToCart)
 
 
-def test() :
-    return "wesh poto"
-
-
-app.jinja_env.globals.update(test=test)
-
-
-articles = getData()
+productsDB = getData()
 
 connexion = pymysql.connect(host='localhost', user='root', password='mysql', db='eShop')
 
@@ -46,12 +39,12 @@ def index():
 
 @app.route('/products')
 def products():
-    return render_template('products.html', Articles=articles)
+    return render_template('products.html', products=productsDB)
 
 
 @app.route('/products/<string:id>/', methods=['GET','POST'])
 @checkLoginForAccess
-def article(id):
+def product(id):
     if request.method == 'POST':
         boolAddedToCart = addToCart(session['idUser'], id)
         if (boolAddedToCart):
@@ -61,7 +54,7 @@ def article(id):
             flash('Le produit est déjà présent dans votre panier', category='warning')
             return redirect('/products/' + str(id) + '/')
 
-    return render_template('article.html', product=getProductData(id), userId=session['idUser'], )
+    return render_template('product.html', product=getProductData(id), userId=session['idUser'], )
 
 class SignUpForm(Form):
     email = StringField('Adresse courriel', [validators.Email(message="Cette adresse email est invalide"),
