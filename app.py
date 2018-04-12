@@ -107,7 +107,6 @@ def category(category):
         data = cursor.fetchall()
         productsData = []
 
-        # print(data)
         for row in data:
             productsData.append({
                 'id': row[0],
@@ -145,18 +144,21 @@ def signup():
         query = "SELECT * FROM users WHERE email = (%s)"
 
         response = cursor.execute(query, email)
-        userId = cursor.fetchone()[0]
         connexion.commit()
+        cursor.close()
 
         if int(response) > 0:
             flash("Cette adresse courriel existe deja", category='warning')
-            cursor.close()
 
             return render_template('signup.html', form=form)
+
         else:
+            cursor = connexion.cursor()
             query = "INSERT INTO users (email, password) VALUES ( %s, %s)"
             cursor.execute(query, (email, password))
             connexion.commit()
+            userId = cursor.lastrowid
+            cursor.close()
 
             flash("Votre nouveau compte est inscris", category='success')
             cursor.close()
@@ -188,9 +190,6 @@ def login():
             return render_template('login.html', form=form)
 
         else:
-            pwdQuery = "SELECT * FROM users WHERE email = (%s)"
-
-            cursor.execute(pwdQuery, email)
 
             response = cursor.fetchone()
 
