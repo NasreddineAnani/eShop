@@ -15,27 +15,30 @@
 	{% endif %}
 {% endwith %}
 
-<h1>Bienvenue</h1>
-		<p class="lead">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-		tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-		quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-		consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
-		cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
-		proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+		<h1>Votre panier d'achat</h1>
+		<br>
+		<h2>Produits:</h2>
+		<br>
         <div class="container">
 			<div class="row">
 			{% for product in cartProduct %}
-				<div class="card col-md-4" style="width: 18rem;">
-					<h1>{{product.id}}</h1>
-				  <img src="{{product.image}}" style="height: 18rem">
-				  <div class="card-body">
-				    <h2>{{product.name}}</h2>
-	            	<h3>{{product.prix}} $</h3>
-	            	<p>{{product.description}} </p>
-					  <form method="post" action="">
+				<div class="row">
+					<div class="col-md-8">
+					  <a href="#">
+						<img class="img-fluid rounded mb-3 mb-md-0" src="{{product.image}}" style="width: 1000px; max-height: 400px">
+					  </a>
+					</div>
+					<div class="col-md-4">
+					  <h3>{{product.name}}</h3>
+					  <p>{{product.description}}</p>
+	            	<h2>{{product.prix}} $</h2>
+						<form method="post" action="">
 							<button type="submit" name="idProduct" value="{{product.idProduct}}" class="btn btn-primary my-2 my-sm-0 navbarButton">Remove from cart </button>
 					  </form>
-				  </div>
+					</div>
+			  	</div>
+				<div class="row">
+					<hr>
 				</div>
 			{% endfor %}
 			</div>

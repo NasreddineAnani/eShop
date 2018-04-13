@@ -123,7 +123,7 @@ def category(category):
         products = productsData
 
         return render_template('products.html', products=products, form=form, category=category)
-    return render_template('products.html', Articles=unordered_products, form=form, category=category)
+    return render_template('products.html', products=unordered_products, form=form, category=category)
 
 
 @app.route('/products/category/<string:category>/<string:id>/', methods=['GET', 'POST'])

@@ -9,7 +9,7 @@ cursor = connexion.cursor()
 
 query1 = 'CREATE DATABASE eShop;'
 query2 = 'USE eShop;'
-query3 = 'CREATE TABLE `products` (`idProduct` INT UNSIGNED NOT NULL AUTO_INCREMENT, `price` FLOAT NOT NULL, `description` MEDIUMTEXT NOT NULL, `name` VARCHAR(45) NOT NULL, `type` VARCHAR(45) NOT NULL, `imgUrl` MEDIUMTEXT NOT NULL,   PRIMARY KEY (`idProduct`));'
+query3 = 'CREATE TABLE eShop.products (`idProduct` INT UNSIGNED NOT NULL AUTO_INCREMENT, `price` FLOAT NOT NULL, `description` MEDIUMTEXT NOT NULL, `name` VARCHAR(45) NOT NULL, `type` VARCHAR(45) NOT NULL, `imgUrl` MEDIUMTEXT NOT NULL,  `quantity` INT UNSIGNED NOT NULL,  PRIMARY KEY (`idProduct`));'
 query4 = 'CREATE TABLE users (userId INT(11) AUTO_INCREMENT, email VARCHAR(100) NOT NULL, password varchar(100) NOT NULL, PRIMARY KEY(userId));'
 query5 = 'CREATE TABLE cart (userId INT(11) NOT NULL, prodId INT(11), PRIMARY KEY (userId, prodId), FOREIGN KEY (userId) REFERENCES users(userId) ON UPDATE CASCADE);'
 query6 = 'CREATE INDEX prices USING BTREE ON products (type, price);'

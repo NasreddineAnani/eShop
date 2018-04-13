@@ -18,6 +18,7 @@ def getData(type):
             'name': row[3],
             'type': row[4],
             'image': row[5],
+            'qty': row[6],
         })
 
     cur.close()
@@ -40,7 +41,8 @@ def getProductData(id):
     'description': data[2],
     'name': data[3],
     'type': data[4],
-    'image': data[5]}
+    'image': data[5],
+    'qty': data[6],}
 
     cur.close()
     connection.close()
@@ -88,6 +90,7 @@ def getCartProduct(idUser):
             'name': row[3],
             'type': row[4],
             'image': row[5],
+            'qty': row[6],
             'idUser': idUser
         })
 
