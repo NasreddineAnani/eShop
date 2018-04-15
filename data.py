@@ -51,9 +51,9 @@ def getProductData(id):
 def addToCart(idUser, idProduct):
     connection = pymysql.connect(user="root", passwd="mysql", host="127.0.0.1", port=3306, database="eShop")
     cur = connection.cursor()
-    cur.execute("SELECT * FROM eShop.cart WHERE userId = %s AND prodId = %s", [str(idUser), str(idProduct)])
+    cur.execute("SELECT * FROM eShop.cart WHERE userId = %s AND idProduct = %s", [str(idUser), str(idProduct)])
     if cur.rowcount == 0:
-        cur.execute("INSERT INTO eShop.cart (userId, prodId) VALUES ( %s, %s);", [str(idUser), str(idProduct)])
+        cur.execute("INSERT INTO eShop.cart (userId, idProduct) VALUES ( %s, %s);", [str(idUser), str(idProduct)])
         connection.commit()
         return True
     else:
@@ -64,9 +64,9 @@ def addToCart(idUser, idProduct):
 def deleteToCart(idUser, idProduct):
     connection = pymysql.connect(user="root", passwd="mysql", host="127.0.0.1", port=3306, database="eShop")
     cur = connection.cursor()
-    cur.execute("SELECT * FROM eShop.cart WHERE userId = %s AND prodId = %s", [str(idUser), str(idProduct)])
+    cur.execute("SELECT * FROM eShop.cart WHERE userId = %s AND idProduct = %s", [str(idUser), str(idProduct)])
     if cur.rowcount > 0:
-        cur.execute("DELETE FROM eShop.cart WHERE userId = %s AND prodId = %s", [str(idUser), str(idProduct)])
+        cur.execute("DELETE FROM eShop.cart WHERE userId = %s AND idProduct = %s", [str(idUser), str(idProduct)])
         connection.commit()
         return True
     else:
