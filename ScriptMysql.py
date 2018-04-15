@@ -4,7 +4,7 @@ file = open("sqlData.txt", 'r')
 lines = file.readlines()
 file.close()
 
-connexion = pymysql.connect(host="localhost", user="root", password="mysql")
+connexion = pymysql.connect(host="localhost", user="root", password="UnAutreMotDePasse")
 cursor = connexion.cursor()
 
 query1 = 'CREATE DATABASE eShop;'
