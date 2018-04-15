@@ -130,7 +130,7 @@ def category(category):
 @checkLoginForAccess
 def product(id, category):
     if request.method == 'POST':
-        boolAddedToCart = addToCart(session['idUser'], id)
+        boolAddedToCart = addToCart(session['idUser'], id, request.form['quantity'])
         if (boolAddedToCart):
             flash('Produit ajouter à votre panier', category='info')
             return redirect('/products/category/' + str(category) + '/' + str(id) + '/')

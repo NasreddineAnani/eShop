@@ -48,12 +48,12 @@ def getProductData(id):
     connection.close()
     return productsData
 
-def addToCart(idUser, idProduct):
+def addToCart(idUser, idProduct, quantityInCart):
     connection = pymysql.connect(user="root", passwd="mysql", host="127.0.0.1", port=3306, database="eShop")
     cur = connection.cursor()
     cur.execute("SELECT * FROM eShop.cart WHERE userId = %s AND idProduct = %s", [str(idUser), str(idProduct)])
     if cur.rowcount == 0:
-        cur.execute("INSERT INTO eShop.cart (userId, idProduct) VALUES ( %s, %s);", [str(idUser), str(idProduct)])
+        cur.execute("INSERT INTO eShop.cart (userId, idProduct, quantityInCart) VALUES ( %s, %s, %s);", [str(idUser), str(idProduct), str(quantityInCart)])
         connection.commit()
         return True
     else:
@@ -77,7 +77,7 @@ def deleteToCart(idUser, idProduct):
 def getCartProduct(idUser):
     connection = pymysql.connect(user="root", passwd="mysql", host="127.0.0.1", port=3306, database="eShop")
     cur = connection.cursor()
-    cur.execute("SELECT * FROM products INNER JOIN cart ON products.idProduct = cart.prodId WHERE cart.userId = (%s);",idUser)
+    cur.execute("SELECT * FROM products INNER JOIN cart ON products.idProduct = cart.idProduct WHERE cart.userId = (%s);",idUser)
     data = cur.fetchall()
     productsData = []
 
@@ -90,7 +90,7 @@ def getCartProduct(idUser):
             'name': row[3],
             'type': row[4],
             'image': row[5],
-            'qty': row[6],
+            'qty': row[9],
             'idUser': idUser
         })
 

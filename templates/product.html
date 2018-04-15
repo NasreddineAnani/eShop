@@ -19,14 +19,22 @@
 				  <img class="img-fluid productImage" src="{{product.image}}" alt="">
 				</div>
 				<div class="col-md-4">
-				  <h3 class="my-3">Project Description</h3>
-				  <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam viverra euismod odio, gravida pellentesque urna varius vitae. Sed dui lorem, adipiscing in adipiscing et, interdum nec metus. Mauris ultricies, justo eu convallis placerat, felis enim.</p>
-				  <h3 class="my-3">Details</h3>
+				  <h3 class="my-3">Détails</h3>
 				  <ul>
 					<li>{{product.description}}</li>
 					<li>{{product.prix}} $</li>
 					  {% if session.session_on %}
 						<form method="post" action="">
+							<div class="form-group">
+								<label for="exampleFormControlSelect1">Quantité :</label>
+								<select name="quantity" class="form-control" id="exampleFormControlSelect1">
+								  <option value="1">1</option>
+								  <option value="2">2</option>
+								  <option value="3">3</option>
+								  <option value="4">4</option>
+								  <option value="5">5</option>
+								</select>
+							  </div>
 							<button type="submit" class="btn btn-primary my-2 my-sm-0 navbarButton"> add product to cart </button>
 						</form>
 					  {% endif %}
