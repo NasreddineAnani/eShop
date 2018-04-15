@@ -4,9 +4,9 @@
 
 <div class="container">
     <h2>Choisissez une categorie de produits</h2>
-    <div class="row">
+    <div class="rowcount">
     {% for category in categories %}
-        <ul>
+        <ul id="categories">
             <li><a href="products/category/{{category}}"> {{category}}</a></li>
         </ul>
     {% endfor %}
