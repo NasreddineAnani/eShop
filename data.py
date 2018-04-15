@@ -1,10 +1,10 @@
 import pymysql
 
-def getData(type):
+def getData(category):
     connection = pymysql.connect(user="root", passwd="mysql", host="127.0.0.1", port=3306, database="eShop")
     cur = connection.cursor()
 
-    cur.execute("SELECT * FROM eShop.products WHERE type LIKE (%s);", type)
+    cur.execute("SELECT * FROM eShop.products WHERE category LIKE (%s);", category)
 
     data = cur.fetchall()
     productsData = []
@@ -16,7 +16,7 @@ def getData(type):
             'prix': row[1],
             'description': row[2],
             'name': row[3],
-            'type': row[4],
+            'category': row[4],
             'image': row[5],
             'qty': row[6],
         })
@@ -40,7 +40,7 @@ def getProductData(id):
     'prix': data[1],
     'description': data[2],
     'name': data[3],
-    'type': data[4],
+    'category': data[4],
     'image': data[5],
     'qty': data[6],}
 
@@ -88,7 +88,7 @@ def getCartProduct(idUser):
             'prix': row[1],
             'description': row[2],
             'name': row[3],
-            'type': row[4],
+            'category': row[4],
             'image': row[5],
             'qty': row[9],
             'idUser': idUser

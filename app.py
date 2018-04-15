@@ -37,7 +37,7 @@ def index():
 @app.route('/products', methods=['GET', 'POST'])
 def products():
 
-    query = 'SELECT DISTINCT type FROM products;'
+    query = 'SELECT DISTINCT category FROM products;'
     cursor = connexion.cursor()
     cursor.execute(query)
     connexion.commit()
@@ -62,9 +62,9 @@ def category(category):
 
         if min is None and max is None:
             if order == 'ASC':
-                query = "SELECT * FROM `products` WHERE `type` LIKE (%s) ORDER BY `price` ASC;"
+                query = "SELECT * FROM `products` WHERE `category` LIKE (%s) ORDER BY `price` ASC;"
             else:
-                query = "SELECT * FROM `products` WHERE `type` LIKE (%s) ORDER BY `price` DESC;"
+                query = "SELECT * FROM `products` WHERE `category` LIKE (%s) ORDER BY `price` DESC;"
             cursor = connexion.cursor()
             cursor.execute(query, category)
             connexion.commit()
@@ -73,9 +73,9 @@ def category(category):
 
         elif min is None:
             if order == 'ASC':
-                query = "SELECT * FROM products WHERE type LIKE (%s) AND `price` < (%s) ORDER BY price ASC;"
+                query = "SELECT * FROM products WHERE category LIKE (%s) AND `price` < (%s) ORDER BY price ASC;"
             else:
-                query = "SELECT * FROM products WHERE type LIKE (%s) AND `price` < (%s) ORDER BY price DESC;"
+                query = "SELECT * FROM products WHERE category LIKE (%s) AND `price` < (%s) ORDER BY price DESC;"
             cursor = connexion.cursor()
             cursor.execute(query, (category, max))
             connexion.commit()
@@ -84,9 +84,9 @@ def category(category):
 
         elif max is None:
             if order == 'ASC':
-                query = "SELECT * FROM products WHERE type LIKE (%s) AND price > (%s) ORDER BY price ASC;"
+                query = "SELECT * FROM products WHERE category LIKE (%s) AND price > (%s) ORDER BY price ASC;"
             else:
-                query = "SELECT * FROM products WHERE type LIKE (%s) AND price > (%s) ORDER BY price DESC;"
+                query = "SELECT * FROM products WHERE category LIKE (%s) AND price > (%s) ORDER BY price DESC;"
 
             cursor = connexion.cursor()
             cursor.execute(query, (category, min))
@@ -100,9 +100,9 @@ def category(category):
 
         else:
             if order == 'ASC':
-                query = "SELECT * FROM products WHERE type LIKE (%s) AND price BETWEEN (%s) AND (%s) ORDER BY price ASC;"
+                query = "SELECT * FROM products WHERE category LIKE (%s) AND price BETWEEN (%s) AND (%s) ORDER BY price ASC;"
             else:
-                query = "SELECT * FROM products WHERE type LIKE (%s) AND price BETWEEN (%s) AND (%s) ORDER BY price DESC;"
+                query = "SELECT * FROM products WHERE category LIKE (%s) AND price BETWEEN (%s) AND (%s) ORDER BY price DESC;"
             cursor = connexion.cursor()
             cursor.execute(query, (category, min, max))
             connexion.commit()
