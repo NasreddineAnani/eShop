@@ -1,6 +1,5 @@
 from flask import Flask, render_template, flash, redirect, url_for, session, logging, request
-from data import getData, getProductData, getCartProduct, addToCart, deleteToCart
-from wtforms import Form, StringField, PasswordField, validators
+from data import getData, getProductData, getCartProduct, addToCart, deleteToCart, connectDB
 import pymysql
 from passlib.hash import sha256_crypt
 from functools import wraps
@@ -8,14 +7,21 @@ from forms import SignUpForm, LoginForm, PriceForm
 
 app = Flask(__name__)
 
+# cle géneré par os.urandom
 app.secret_key = b'{\xcd\xb6>\xf2\x02\xcc\x97\xefR\xae\xfflV\x172\x8bA\xf4e\x93\xd5p\xca'
 app.config['SESSION_TYPE'] = 'filesystem'
 
 app.jinja_env.globals.update(addProductToCart=addToCart)
 
-connexion = pymysql.connect(host='localhost', user='root', password='mysql', db='eShop')
+
+# connection a la base de données, changer le mot de passe au besoin
 
 
+
+connexion = connectDB()
+
+
+# décorateur qui restrict l'acces a une page si le user n'est pas connecté
 def checkLoginForAccess(f):
     @wraps(f)
     def wrap(*args, **kwargs):
@@ -28,15 +34,16 @@ def checkLoginForAccess(f):
     return wrap
 
 
-# Index
+# Page d'acceuil
 @app.route('/')
 def index():
     return render_template('home.html')
 
 
+# page de choix des categories
 @app.route('/products', methods=['GET', 'POST'])
 def products():
-
+    # fetch les categories des produits
     query = 'SELECT DISTINCT category FROM products;'
     cursor = connexion.cursor()
     cursor.execute(query)
@@ -46,20 +53,26 @@ def products():
     categories = []
     for row in data:
         categories.append(row[0])
+
+    # envoie la liste des categories a la page catogories.html
     return render_template('categories.html', categories=categories)
 
 
+# Page de recherche des produits classés par categories
 @app.route('/products/category/<string:category>/', methods=['GET', 'POST'])
 def category(category):
+    # fetch tous les produits de la categorie
     unordered_products = getData(category)
     form = PriceForm(request.form)
     data = []
 
+    # traitement quand la page envoie une requete POST pour trier les produits
     if request.method == 'POST' and form.validate():
         min = form.minPrice.data
         max = form.maxPrice.data
         order = form.priceOrder.data
 
+        # quand l'utilisateur ne specifie pas de min ou max
         if min is None and max is None:
             if order == 'ASC':
                 query = "SELECT * FROM `products` WHERE `category` LIKE (%s) ORDER BY `price` ASC;"
@@ -71,6 +84,7 @@ def category(category):
             cursor.close()
             data = cursor.fetchall()
 
+        # quand le user specifie seulement un max
         elif min is None:
             if order == 'ASC':
                 query = "SELECT * FROM products WHERE category LIKE (%s) AND `price` < (%s) ORDER BY price ASC;"
@@ -82,6 +96,7 @@ def category(category):
             cursor.close()
             data = cursor.fetchall()
 
+        # quand le user specifie seulement un max
         elif max is None:
             if order == 'ASC':
                 query = "SELECT * FROM products WHERE category LIKE (%s) AND price > (%s) ORDER BY price ASC;"
@@ -98,6 +113,7 @@ def category(category):
             flash('La valeur minimum doit etre inferieur au maximum', category='warning')
             render_template('products.html', Articles=unordered_products, form=form)
 
+        # quand le min et le max sont specifiés
         else:
             if order == 'ASC':
                 query = "SELECT * FROM products WHERE category LIKE (%s) AND price BETWEEN (%s) AND (%s) ORDER BY price ASC;"
@@ -143,17 +159,21 @@ def product(id, category):
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
+    # dans le cas ou l'utilisateur accede par l'url /signup en etant connecté
     if 'session_on' in session and session['session_on']:
         flash('Deconnectez vous pour inscrire un nouveau compte', category='info')
         return redirect('/')
 
+    # formulaire WTForm
     form = SignUpForm(request.form)
     cursor = connexion.cursor()
 
+    # envoie du formulaire
     if request.method == 'POST' and form.validate():
 
         email = form.email.data
 
+        # encryption du mot de passe
         password = sha256_crypt.encrypt((str(form.password.data)))
 
         query = "SELECT * FROM users WHERE email LIKE (%s)"
@@ -162,11 +182,13 @@ def signup():
         connexion.commit()
         cursor.close()
 
+        # verifie si le courriel existe deja
         if int(response) > 0:
             flash("Cette adresse courriel existe deja", category='warning')
 
             return render_template('signup.html', form=form)
 
+        # creation du nouveau compte
         else:
             cursor = connexion.cursor()
             query = "INSERT INTO users (email, password) VALUES ( %s, %s)"
@@ -199,6 +221,7 @@ def login():
         query = "SELECT * FROM users WHERE email LIKE (%s)"
         response = cursor.execute(query, email)
 
+        # si le email n'existe pas, la reponse est vide
         if int(response) == 0:
             flash("L'utilisateur n'existe pas ou le mot de passe ne correspond pas", category='warning')
             cursor.close()
@@ -214,6 +237,7 @@ def login():
 
             password = form.password.data
 
+            # verifie que le mot de passe correspond au hash stocké dans la base de données
             if sha256_crypt.verify(password, hashedpwd):
                 flash("Vous etes connecté", category='success')
                 session['session_on'] = True
@@ -222,6 +246,7 @@ def login():
                 cursor.close()
                 return redirect('/')
 
+            # cas ou le mot de passe est faux
             else:
                 flash("L'utilisateur n'existe pas ou le mot de passe ne correspond pas", category='warning')
                 cursor.close()
