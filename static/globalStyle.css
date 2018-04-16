@@ -1,3 +1,23 @@
-#categories ul {
-  list-style-type: none;
+#categories {
+  column-count: 3; /* Divise categories in 3 columns */
+}
+
+#category {
+  list-style-type: none; /* No bullet in list */
+}
+
+.bg-light {
+  background-color: lightblue !important; /* Change the background-color of the navbar */
+}
+
+h1, h2 {
+  font-family: cursive; /* Change the font of h1 and h2 */
+}
+
+h2 {
+  padding: 12px;
+}
+
+.jumbotron, #container-cat {
+  padding: 12px;
 }

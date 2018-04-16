@@ -2,11 +2,11 @@
 
 {% block body %}
 
-<div class="container">
+<div class="container" id="container-cat">
     <h2>Choisissez une categorie de produits</h2>
-    <div class="rowcount">
+    <div class="rowcount" id="categories">
     {% for category in categories %}
-        <ul id="categories">
+        <ul id="category">
             <li><a href="products/category/{{category}}"> {{category}}</a></li>
         </ul>
     {% endfor %}
