@@ -15,9 +15,6 @@ app.jinja_env.globals.update(addProductToCart=addToCart)
 
 
 # connection a la base de données, changer le mot de passe au besoin
-
-
-
 connexion = connectDB()
 
 
