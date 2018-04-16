@@ -1,9 +1,13 @@
 import pymysql
 
+def connectDB():
+    return pymysql.connect(host='localhost', user='root', password='UnAutreMotDePasse', db='eShop')
+
 def getData(category):
-    connection = pymysql.connect(user="root", passwd="mysql", host="127.0.0.1", port=3306, database="eShop")
+    connection = connectDB()
     cur = connection.cursor()
 
+    # selectionne tous les produits avec la categorie spécifié
     cur.execute("SELECT * FROM eShop.products WHERE category LIKE (%s);", category)
 
     data = cur.fetchall()
@@ -11,6 +15,7 @@ def getData(category):
 
     # print(data)
     for row in data:
+        # creation dun vecteur avec des tuples de produit
         productsData.append({
             'idProduct': row[0],
             'prix': row[1],
@@ -27,33 +32,36 @@ def getData(category):
 
 
 def getProductData(id):
-    connection = pymysql.connect(user="root", passwd="mysql", host="127.0.0.1", port=3306, database="eShop")
+    connection = connectDB()
     cur = connection.cursor()
 
+    # selection d'un produit selon son ID
     cur.execute("SELECT * FROM eShop.products WHERE idProduct =(%s);", id)
 
     data = cur.fetchone()
 
     # print(data)
     productsData = {
-    'idProduct': data[0],
-    'prix': data[1],
-    'description': data[2],
-    'name': data[3],
-    'category': data[4],
-    'image': data[5],
-    'qty': data[6],}
+        'idProduct': data[0],
+        'prix': data[1],
+        'description': data[2],
+        'name': data[3],
+        'category': data[4],
+        'image': data[5],
+        'qty': data[6], }
 
     cur.close()
     connection.close()
     return productsData
 
+
 def addToCart(idUser, idProduct, quantityInCart):
-    connection = pymysql.connect(user="root", passwd="mysql", host="127.0.0.1", port=3306, database="eShop")
+    connection = connectDB()
     cur = connection.cursor()
     cur.execute("SELECT * FROM eShop.cart WHERE userId = %s AND idProduct = %s", [str(idUser), str(idProduct)])
     if cur.rowcount == 0:
-        cur.execute("INSERT INTO eShop.cart (userId, idProduct, quantityInCart) VALUES ( %s, %s, %s);", [str(idUser), str(idProduct), str(quantityInCart)])
+        cur.execute("INSERT INTO eShop.cart (userId, idProduct, quantityInCart) VALUES ( %s, %s, %s);",
+                    [str(idUser), str(idProduct), str(quantityInCart)])
         connection.commit()
         return True
     else:
@@ -61,8 +69,9 @@ def addToCart(idUser, idProduct, quantityInCart):
     cur.close()
     connection.close()
 
+
 def deleteToCart(idUser, idProduct):
-    connection = pymysql.connect(user="root", passwd="mysql", host="127.0.0.1", port=3306, database="eShop")
+    connection = connectDB()
     cur = connection.cursor()
     cur.execute("SELECT * FROM eShop.cart WHERE userId = %s AND idProduct = %s", [str(idUser), str(idProduct)])
     if cur.rowcount > 0:
@@ -74,10 +83,13 @@ def deleteToCart(idUser, idProduct):
     cur.close()
     connection.close()
 
+
 def getCartProduct(idUser):
-    connection = pymysql.connect(user="root", passwd="mysql", host="127.0.0.1", port=3306, database="eShop")
+    connection = connectDB()
     cur = connection.cursor()
-    cur.execute("SELECT * FROM products INNER JOIN cart ON products.idProduct = cart.idProduct WHERE cart.userId = (%s);",idUser)
+    cur.execute(
+        "SELECT * FROM products INNER JOIN cart ON products.idProduct = cart.idProduct WHERE cart.userId = (%s);",
+        idUser)
     data = cur.fetchall()
     productsData = []
 
